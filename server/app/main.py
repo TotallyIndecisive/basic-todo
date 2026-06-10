@@ -1,15 +1,20 @@
-# 10-06-26[Wed] - Backend to be deployed on Render.com
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .database import Base, engine
-from .routes.todos import router as todo_router
+from app.database import Base, engine
+from app.routes.todos import router as todo_router
 
-Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    Base.metadata.create_all(bind=engine)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://localhost:5173",
@@ -27,6 +32,7 @@ app.add_middleware(
 )
 
 app.include_router(todo_router)
+
 
 @app.get("/")
 def root():
