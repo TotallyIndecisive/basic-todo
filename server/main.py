@@ -1,4 +1,6 @@
 # 10-06-26[Wed] - Backend to be deployed on Render.com
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -11,7 +13,10 @@ app = FastAPI()
 
 origins = [
     "http://localhost:5173",
+    os.getenv("FRONTEND_URL", ""),
 ]
+
+origins = [o for o in origins if o]
 
 app.add_middleware(
     CORSMiddleware,
